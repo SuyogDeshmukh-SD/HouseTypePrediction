@@ -26,7 +26,11 @@ columns = [
     'neighbourhood_group',
     'neighbourhood'
 ]
-model=joblib.load('Model_pipeline.pkl')
+from pathlib import Path
+# import joblib
+
+model_path = Path(__file__).resolve().parent / "Model_pipeline.pkl"
+model = joblib.load(model_path)
 class Features(BaseModel):
     latitude: float = Field( ... , ge =- 90, le=90, description="Latitude coordinate")
     longitude: float = Field( ... , ge =- 180, le=180, description="Longitude coordinate")
@@ -52,7 +56,7 @@ def greet():
 
 @app.post('/predict')
 def predict(features: Features):
-    row=pd.DataFrame([features.dict()],columns=columns)
+    row = pd.DataFrame([features.model_dump()], columns=columns)
     prediction=model.predict(row)[0]
     probability=model.predict_proba(row)
     return {"prediction": prediction, "probability": probability[0].tolist()}
